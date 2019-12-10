@@ -13,6 +13,7 @@ import logging
 from logging import Formatter, FileHandler
 from flask_wtf import Form
 from forms import *
+from collections import defaultdict
 #----------------------------------------------------------------------------#
 # App Config.
 #----------------------------------------------------------------------------#
@@ -93,28 +94,23 @@ def index():
 def venues():
   # TODO: replace with real venues data.
   #       num_shows should be aggregated based on number of upcoming shows per venue.
-  data=[{
-    "city": "San Francisco",
-    "state": "CA",
-    "venues": [{
-      "id": 1,
-      "name": "The Musical Hop",
-      "num_upcoming_shows": 0,
-    }, {
-      "id": 3,
-      "name": "Park Square Live Music & Coffee",
-      "num_upcoming_shows": 1,
-    }]
-  }, {
-    "city": "New York",
-    "state": "NY",
-    "venues": [{
-      "id": 2,
-      "name": "The Dueling Pianos Bar",
-      "num_upcoming_shows": 0,
-    }]
-  }]
-  return render_template('pages/venues.html', areas=data);
+
+  all_venue = Venue.query.all()
+  grouped_venue_data = group_venue_data(all_venue)
+  return render_template('pages/venues.html', areas=grouped_venue_data);
+
+def group_venue_data(venue_data):
+  temp_dict = defaultdict(list)
+  for v in venue_data:
+    temp_dict[v.city].append(v)
+  grouped_venue = []
+  for value in temp_dict:
+    a_dict = {}
+    a_dict['city'] = value
+    a_dict['state'] = temp_dict[value][0].state
+    a_dict['venues'] = temp_dict[value]
+    grouped_venue.append(a_dict)
+  return grouped_venue
 
 @app.route('/venues/search', methods=['POST'])
 def search_venues():
