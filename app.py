@@ -5,7 +5,7 @@
 import json
 import dateutil.parser
 from babel import dates
-from flask import Flask, render_template, request, Response, flash, redirect, url_for
+from flask import Flask, render_template, request, Response, flash, redirect, url_for,jsonify
 from flask_moment import Moment
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
@@ -199,7 +199,7 @@ def delete_venue(venue_id):
 
   # BONUS CHALLENGE: Implement a button to delete a Venue on a Venue Page, have it so that
   # clicking that button delete it from the db then redirect the user to the homepage
-  return redirect(url_for('index'))
+  return jsonify({'success':True})
 
 #  Artists
 #  ----------------------------------------------------------------
