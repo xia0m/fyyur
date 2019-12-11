@@ -14,6 +14,7 @@ from logging import Formatter, FileHandler
 from flask_wtf import Form
 from forms import *
 from collections import defaultdict
+import sys
 #----------------------------------------------------------------------------#
 # App Config.
 #----------------------------------------------------------------------------#
@@ -169,16 +170,15 @@ def create_venue_submission():
     flash(f"Venue {venue_name} was successfully listed! ")
   
   except:
+    # TODO: on unsuccessful db insert, flash an error instead.
+    # e.g., flash('An error occurred. Venue ' + data.name + ' could not be listed.')
     db.session.rollback()
     flash(f'An error occurred. Venue {venue_name} could not be listed.')
   finally:
     db.session.close()
 
-  # flash(venue_name + ' received')
-  # on successful db insert, flash success
-  # flash('Venue ' + request.form['name'] + ' was successfully listed!')
-  # TODO: on unsuccessful db insert, flash an error instead.
-  # e.g., flash('An error occurred. Venue ' + data.name + ' could not be listed.')
+  
+  
   # see: http://flask.pocoo.org/docs/1.0/patterns/flashing/
   return render_template('pages/home.html')
 
@@ -274,6 +274,28 @@ def edit_venue(venue_id):
 def edit_venue_submission(venue_id):
   # TODO: take values from the form submitted, and update existing
   # venue record with ID <venue_id> using the new attributes
+  venue = Venue.query.get(venue_id)
+  venue.name = request.form['name']
+  venue.city = request.form['city']
+  venue.state = request.form['state']
+  venue.address = request.form['address']
+  venue.phone = request.form['phone']
+  venue.genres = request.form.getlist('genres')
+  venue.facebook_link = request.form['facebook_link']
+  venue.image_link = request.form['image_link']
+  venue.website = request.form['website']
+  venue.seeking_talent = True if request.form['seeking_talent']=='Yes' else False
+  venue.seeking_description = request.form['seeking_description']
+  
+  try:
+    db.session.commit()
+    flash(f"Venue {venue.name} was successfully edited! ")
+  except:
+    db.session.rollback()
+    flash(f'An error occurred. Venue {venue.name} could not be listed.')
+  finally:
+    db.session.close()
+
   return redirect(url_for('show_venue', venue_id=venue_id))
 
 #  Create Artist
