@@ -145,7 +145,26 @@ def show_venue(venue_id):
   # shows the venue page with the given venue_id
   # TODO: replace with real venue data from the venues table, using venue_id
   
-  data = Venue.query.get(venue_id)
+  venue = Venue.query.get(venue_id)
+  now = datetime.now()
+  past_shows = []
+  upcoming_shows = []
+  for show in venue.shows:
+    temp = {}
+    temp_artist = Artist.query.get(show.artist_id)
+    temp['artist_id'] = show.artist_id
+    temp['artist_name'] = temp_artist.name
+    temp['artist_image'] = temp_artist.image_link
+    temp['start_time'] = show.start_time
+    if datetime.strptime(show.start_time,'%Y-%m-%d %H:%M:%S') < now:
+      past_shows.append(temp)
+    else:
+      upcoming_shows.append(temp)
+  data = venue
+  setattr(data,'past_shows',past_shows)
+  setattr(data,'past_shows_count',len(past_shows))
+  setattr(data,'upcoming_shows',upcoming_shows)
+  setattr(data,'upcoming_shows_count',len(upcoming_shows))
   return render_template('pages/show_venue.html', venue=data)
 
 #  Create Venue
@@ -236,7 +255,28 @@ def search_artists():
 def show_artist(artist_id):
   # shows the venue page with the given venue_id
   # TODO: replace with real venue data from the venues table, using venue_id
-  data = Artist.query.get(artist_id)
+  artist = Artist.query.get(artist_id)
+
+  now = datetime.now()
+  past_shows = []
+  upcoming_shows = []
+  for show in artist.shows:
+    temp = {}
+    temp_venue = Venue.query.get(show.venue_id)
+    temp['venue_id'] = show.venue_id
+    temp['venue_name'] = temp_venue.name
+    temp['venue_image'] = temp_venue.image_link
+    temp['start_time'] = show.start_time
+    if datetime.strptime(show.start_time,'%Y-%m-%d %H:%M:%S') < now:
+      past_shows.append(temp)
+    else:
+      upcoming_shows.append(temp)
+  data = artist
+  setattr(data,'past_shows',past_shows)
+  setattr(data,'past_shows_count',len(past_shows))
+  setattr(data,'upcoming_shows',upcoming_shows)
+  setattr(data,'upcoming_shows_count',len(upcoming_shows))
+
   return render_template('pages/show_artist.html', artist=data)
 
 #  Update
